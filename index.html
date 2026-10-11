@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CookieHouse | Business Manager</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="layout">
+<aside class="sidebar">
+ <div class="brand"><div class="brand-icon">🍪</div><div class="brand-text"><h2>CookieHouse</h2><small>Business Manager</small></div></div>
+ <div class="nav-label">MENU UTAMA</div>
+ <nav class="nav">
+  <button class="active" data-page="dashboard" onclick="showPage('dashboard',this)"><span>⌂</span><span class="navtext">Dashboard</span></button>
+  <button data-page="produk" onclick="showPage('produk',this)"><span>▦</span><span class="navtext">Produk & Stok</span></button>
+  <button data-page="pelanggan" onclick="showPage('pelanggan',this)"><span>♙</span><span class="navtext">Pelanggan</span></button>
+  <button data-page="penjualan" onclick="showPage('penjualan',this)"><span>🛒</span><span class="navtext">Penjualan</span></button>
+  <button data-page="pengeluaran" onclick="showPage('pengeluaran',this)"><span>↘</span><span class="navtext">Pengeluaran</span></button>
+  <div class="nav-label">ANALISIS & DATA</div>
+  <button data-page="laporan" onclick="showPage('laporan',this)"><span>▤</span><span class="navtext">Laporan</span></button>
+  <button data-page="pengaturan" onclick="showPage('pengaturan',this)"><span>⚙</span><span class="navtext">Data & Backup</span></button>
+ </nav>
+ <div class="side-bottom"><b>🍪 CookieHouse</b><br>Kelola produk, pelanggan, transaksi, dan biaya dari satu tempat.<br><span id="sideProductCount">0 produk terdaftar</span></div>
+</aside>
+<main class="main">
+<header class="topbar"><div><div class="eyebrow">BAKED WITH LOVE ✦</div><h1 id="pageTitle">Dashboard</h1><div class="subtitle" id="pageSubtitle">Ringkasan bisnis CookieHouse hari ini.</div></div><div class="top-actions"><button class="btn btn-light" onclick="exportBackup()">⇩ Backup data</button><div class="date-chip" id="today"></div></div></header>
+
+<section id="dashboard" class="page active">
+ <div class="hero"><div><div class="eyebrow">COOKIEHOUSE • ADMIN PANEL</div><h2>Bisnis cookies, lebih<br>rapi dan terkendali.</h2><p>Pantau penjualan, stok, pelanggan, dan pengeluaran secara terhubung. Setiap penjualan akan memperbarui persediaan secara otomatis.</p><button class="btn btn-primary" onclick="showPage('penjualan')">＋ Catat penjualan</button></div><div class="hero-art">🍪</div></div>
+ <div class="stats">
+  <div class="stat"><div class="stat-top"><span class="stat-label">Penjualan hari ini</span><span class="stat-icon">↗</span></div><h3 id="todaySales">Rp0</h3><div class="stat-foot" id="todaySalesCount">0 transaksi hari ini</div></div>
+  <div class="stat"><div class="stat-top"><span class="stat-label">Pengeluaran bulan ini</span><span class="stat-icon">↘</span></div><h3 id="monthExpense">Rp0</h3><div class="stat-foot">Total biaya bulan berjalan</div></div>
+  <div class="stat"><div class="stat-top"><span class="stat-label">Estimasi laba bersih</span><span class="stat-icon">✦</span></div><h3 id="netProfit">Rp0</h3><div class="stat-foot">Penjualan dikurangi pengeluaran</div></div>
+  <div class="stat"><div class="stat-top"><span class="stat-label">Nilai persediaan</span><span class="stat-icon">▦</span></div><h3 id="stockValue">Rp0</h3><div class="stat-foot" id="stockUnits">0 pcs tersedia</div></div>
+ </div>
+ <div class="dash-grid">
+  <div class="card"><div class="card-head"><div><h3>Penjualan terbaru</h3><p>Transaksi yang tercatat di sistem</p></div><button class="link-btn" onclick="showPage('penjualan')">Lihat semua →</button></div><div id="recentSales" class="recent-list"></div></div>
+  <div class="card"><div class="card-head"><div><h3>Perlu diperhatikan</h3><p>Peringatan stok dan data</p></div><span class="badge gold" id="alertCount">0 alert</span></div><div id="alerts" class="alert-list"></div></div>
+ </div>
+ <div class="card"><div class="card-head"><div><h3>Struktur 4 entitas</h3><p>Relasi data inti CookieHouse</p></div><span class="badge green">Terhubung</span></div><div class="entity-map">
+  <div class="entity"><b>01 · Produk</b><small><b>produk_id</b> (PK)<br>Nama, harga, stok</small></div>
+  <div class="entity"><b>02 · Pelanggan</b><small><b>pelanggan_id</b> (PK)<br>Nama, HP, email</small></div>
+  <div class="entity"><b>03 · Penjualan</b><small><b>penjualan_id</b> (PK)<br><b>produk_id</b> (FK)<br><b>pelanggan_id</b> (FK)</small></div>
+  <div class="entity"><b>04 · Pengeluaran</b><small><b>pengeluaran_id</b> (PK)<br>Tanggal, kategori, nominal</small></div>
+ </div><div class="rel-note">Produk 1 → banyak Penjualan · Pelanggan 1 → banyak Penjualan. Pengeluaran mencatat biaya operasional. Data penjualan menyimpan harga saat transaksi dibuat agar riwayat total tidak berubah ketika harga produk diperbarui.</div></div>
+</section>
+
+<section id="produk" class="page">
+ <div class="section-head"><div><h2>Produk & Persediaan</h2><p>Kelola katalog, harga, dan stok cookies.</p></div><button class="btn btn-primary" onclick="openForm('produk')">＋ Tambah produk</button></div>
+ <div class="toolbar"><div class="search"><input id="searchProduk" placeholder="Cari nama atau ID produk..." oninput="renderProducts()"></div><select id="filterStok" onchange="renderProducts()"><option value="">Semua kondisi stok</option><option value="low">Stok menipis</option><option value="available">Stok tersedia</option><option value="empty">Stok habis</option></select><button class="btn btn-light" onclick="exportCSV('produk')">⇩ Export CSV</button></div>
+ <div id="productGrid" class="product-grid"></div>
+ <div class="footer-note">Stok rendah ditandai otomatis jika jumlah stok sama dengan atau di bawah batas stok minimum.</div>
+</section>
+
+<section id="pelanggan" class="page">
+ <div class="section-head"><div><h2>Data Pelanggan</h2><p>Database pelanggan yang bisa langsung dipilih saat penjualan.</p></div><button class="btn btn-primary" onclick="openForm('pelanggan')">＋ Tambah pelanggan</button></div>
+ <div class="toolbar"><div class="search"><input id="searchPelanggan" placeholder="Cari nama, HP, email, atau ID..." oninput="renderCustomers()"></div><button class="btn btn-light" onclick="exportCSV('pelanggan')">⇩ Export CSV</button></div>
+ <div class="card"><div class="table-wrap"><table><thead><tr><th>ID Pelanggan</th><th>Nama pelanggan</th><th>Kontak</th><th>Total transaksi</th><th>Total belanja</th><th>Aksi</th></tr></thead><tbody id="customerRows"></tbody></table></div></div>
+</section>
+
+<section id="penjualan" class="page">
+ <div class="section-head"><div><h2>Penjualan</h2><p>Pilih pelanggan dan produk. Stok akan berkurang otomatis setelah disimpan.</p></div><button class="btn btn-primary" onclick="openForm('penjualan')">＋ Catat penjualan</button></div>
+ <div class="toolbar"><div class="search"><input id="searchPenjualan" placeholder="Cari ID, pelanggan, atau produk..." oninput="renderSales()"></div><input type="date" id="salesFrom" title="Dari tanggal" onchange="renderSales()"><input type="date" id="salesTo" title="Sampai tanggal" onchange="renderSales()"><button class="btn btn-light" onclick="clearSalesFilter()">Reset filter</button><button class="btn btn-light" onclick="exportCSV('penjualan')">⇩ Export CSV</button></div>
+ <div class="card"><div class="table-wrap"><table><thead><tr><th>ID Penjualan</th><th>Tanggal</th><th>Pelanggan</th><th>Produk</th><th>Qty</th><th>Harga satuan</th><th>Total</th><th>Aksi</th></tr></thead><tbody id="salesRows"></tbody></table></div></div>
+</section>
+
+<section id="pengeluaran" class="page">
+ <div class="section-head"><div><h2>Pengeluaran</h2><p>Catat biaya bahan baku dan operasional toko.</p></div><button class="btn btn-primary" onclick="openForm('pengeluaran')">＋ Tambah pengeluaran</button></div>
+ <div class="toolbar"><div class="search"><input id="searchPengeluaran" placeholder="Cari keterangan atau kategori..." oninput="renderExpenses()"></div><button class="btn btn-light" onclick="exportCSV('pengeluaran')">⇩ Export CSV</button></div>
+ <div class="card"><div class="table-wrap"><table><thead><tr><th>ID Pengeluaran</th><th>Tanggal</th><th>Keterangan</th><th>Kategori</th><th>Nominal</th><th>Aksi</th></tr></thead><tbody id="expenseRows"></tbody></table></div></div>
+</section>
+
+<section id="laporan" class="page">
+ <div class="section-head"><div><h2>Laporan Bisnis</h2><p>Ringkasan penjualan, biaya, produk terlaris, dan pelanggan.</p></div><button class="btn btn-light" onclick="exportCSV('laporan')">⇩ Export laporan</button></div>
+ <div class="stats">
+  <div class="stat"><div class="stat-top"><span class="stat-label">Total penjualan</span><span class="stat-icon">↗</span></div><h3 id="reportSales">Rp0</h3><div class="stat-foot" id="reportSaleCount">0 transaksi</div></div>
+  <div class="stat"><div class="stat-top"><span class="stat-label">Total pengeluaran</span><span class="stat-icon">↘</span></div><h3 id="reportExpenses">Rp0</h3><div class="stat-foot">Semua biaya tercatat</div></div>
+  <div class="stat"><div class="stat-top"><span class="stat-label">Laba estimasi</span><span class="stat-icon">✦</span></div><h3 id="reportProfit">Rp0</h3><div class="stat-foot">Belum termasuk biaya produk terjual</div></div>
+  <div class="stat"><div class="stat-top"><span class="stat-label">Rata-rata transaksi</span><span class="stat-icon">◎</span></div><h3 id="avgSale">Rp0</h3><div class="stat-foot">Nilai rata-rata per transaksi</div></div>
+ </div>
+ <div class="report-grid"><div class="card"><div class="card-head"><div><h3>Produk terlaris</h3><p>Diurutkan berdasarkan unit terjual</p></div></div><div id="topProducts"></div></div><div class="card"><div class="card-head"><div><h3>Pelanggan teraktif</h3><p>Diurutkan berdasarkan total belanja</p></div></div><div id="topCustomers"></div></div></div>
+ <div class="card"><div class="card-head"><div><h3>Ringkasan pengeluaran</h3><p>Total biaya berdasarkan kategori</p></div></div><div id="expenseBreakdown"></div></div>
+</section>
+
+<section id="pengaturan" class="page">
+ <div class="section-head"><div><h2>Data & Backup</h2><p>Amankan data database atau pulihkan dari file backup.</p></div></div>
+ <div class="report-grid">
+  <div class="card"><div class="card-head"><div><h3>Backup data</h3><p>Simpan semua entitas sebagai satu file JSON.</p></div><span class="stat-icon">⇩</span></div><p class="rel-note">Backup mencakup produk, pelanggan, penjualan, dan pengeluaran. Simpan file di tempat aman sebagai cadangan tambahan di luar database.</p><button class="btn btn-primary" onclick="exportBackup()">Download backup JSON</button></div>
+  <div class="card"><div class="card-head"><div><h3>Import backup</h3><p>Pulihkan data dari file CookieHouse JSON.</p></div><span class="stat-icon">⇧</span></div><p class="rel-note">Import akan mengganti seluruh data aktif di database Supabase. Pastikan backup yang dipilih benar.</p><input type="file" id="importFile" accept=".json,application/json" style="max-width:100%;margin:10px 0 15px"><br><button class="btn btn-light" onclick="importBackup()">Pilih dan pulihkan backup</button></div>
+ </div>
+ <div class="card"><div class="card-head"><div><h3>Status database Supabase</h3><p>Jumlah data yang tersimpan di cloud.</p></div></div><div class="entity-map" id="dbStatus"></div><div class="footer-note">Data tersimpan di Supabase (PostgreSQL) sehingga bisa dibuka dari perangkat mana pun dan otomatis tersinkron.</div></div>
+ <div class="card"><div class="card-head"><div><h3>Reset data</h3><p>Hapus seluruh data di database dan mulai dari awal.</p></div></div><p class="rel-note">Tindakan ini tidak bisa dibatalkan kecuali kamu memiliki file backup.</p><button class="btn btn-danger" onclick="resetData()">Hapus semua data</button></div>
+</section>
+</main>
+</div>
+
+<div class="modal" id="modal"><div class="modal-box"><div class="modal-head"><div><h2 id="modalTitle">Tambah data</h2><p id="modalDesc">Isi data dengan benar.</p></div><button class="close" onclick="closeForm()">✕</button></div><form id="dataForm"><div id="fields"></div><div class="modal-actions"><button type="button" class="btn btn-light" onclick="closeForm()">Batal</button><button type="submit" class="btn btn-primary">Simpan data</button></div></form></div></div>
+<div class="toast" id="toast"></div>
+<script src="js/app.js"></script>
+</body></html>
