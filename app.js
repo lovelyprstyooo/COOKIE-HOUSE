@@ -96,7 +96,8 @@ const dateNow=todayISO();
 let db={produk:[],pelanggan:[],penjualan:[],pengeluaran:[]}, formType='', editingId=null;
 async function refresh(){db=await api.loadAll();renderAll()}
 async function run(job,okMsg){try{await job();await refresh();if(okMsg)toast(okMsg);return true}catch(e){console.error(e);toast('Gagal: '+(e.message||e));return false}}
-async function init(){renderAll();try{await refresh()}catch(e){console.error(e);toast('Gagal terhubung ke Supabase: '+(e.message||e))}}
+function showFatal(msg){let b=document.getElementById('fatalBox');if(!b){b=document.createElement('div');b.id='fatalBox';b.style.cssText='position:fixed;left:270px;right:20px;top:15px;z-index:99;background:#fff0ed;color:#b55245;border:2px solid #b55245;border-radius:12px;padding:14px 16px;font-size:13px;line-height:1.6;word-break:break-all';document.body.appendChild(b)}b.innerHTML='<b>Gagal terhubung ke Supabase</b><br>'+esc(msg)+'<br><small>URL: '+esc(window.COOKIEHOUSE_CONFIG.url)+'</small>'}
+async function init(){renderAll();try{await refresh()}catch(e){console.error(e);showFatal(e.message||String(e))}}
 const rupiah=n=>new Intl.NumberFormat('id-ID',{style:'currency',currency:'IDR',maximumFractionDigits:0}).format(Number(n)||0);
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const idLabel=(type,id)=>({produk:'PR',pelanggan:'PL',penjualan:'PJ',pengeluaran:'PG'}[type])+String(id).padStart(4,'0');
